@@ -60,10 +60,10 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 3200;
   const HOST = process.env.HOST || '127.0.0.1'; // Change from '0.0.0.0' to '127.0.0.1'
 
-  app.listen(PORT, HOST, () => {
+  app.listen(Number(PORT), HOST, () => {
     console.log(`Server running at http://${HOST}:${PORT}`);
   });
 })();

@@ -4,11 +4,9 @@ import { storage } from "./storage";
 import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve the standalone STEM Quest HTML file
-  app.get('/', (req, res) => {
-    res.sendFile(path.resolve(process.cwd(), 'index.html'));
-  });
-
+  // Note: The root route '/' is handled by Vite middleware in development
+  // and by static file serving in production (see server/index.ts)
+  
   // put application routes here
   // prefix all routes with /api
 
