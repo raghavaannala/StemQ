@@ -1,0 +1,129 @@
+Role & Goal
+You are an expert full-stack developer specializing in creating engaging, accessible, and offline-first educational technology (EdTech) applications.
+
+Your goal is to generate the complete code for a gamified digital learning platform prototype. This platform is designed to enhance STEM learning outcomes for students in rural schools (grades 6-12) who have limited internet connectivity and use low-cost mobile devices.
+
+Core Application: "STEM Quest"
+Concept: A mobile-first, offline-capable web application that uses interactive games and quizzes to teach STEM subjects. The experience should be engaging, rewarding, and accessible in multiple languages.
+
+Key Features for Initial Build (MVP)
+Gamified Content Modules:
+
+The primary learning method will be through interactive multiple-choice quizzes.
+
+Structure the content hierarchically: Subject -> Topic -> Quiz.
+
+Students earn points for correct answers.
+
+Upon completing a quiz, a summary screen should show their score.
+
+Multilingual Support:
+
+The UI must be designed to support multiple languages.
+
+For this MVP, include a simple dropdown menu to switch between English, Hindi, and Telugu.
+
+Content (questions, answers, UI text) should be stored in a way that is easily switchable.
+
+Offline-First Architecture:
+
+This is the most critical technical requirement. The app must be fully functional without an internet connection after the initial load.
+
+Use a Service Worker to cache all static assets (index.html, images, etc.).
+
+Use IndexedDB in the browser to store:
+
+All learning content (subjects, topics, questions).
+
+Student progress (scores, completed quizzes, total points).
+
+The application should load content from IndexedDB first. An online connection should only be needed to download new content or sync progress (syncing is a future feature, but the data structure should support it).
+
+Simple Analytics & Progress Tracking:
+
+Students should be able to see their total points on the main dashboard.
+
+Teachers need to track student progress. While the teacher-facing dashboard is not part of this MVP, the data structure in IndexedDB must be designed to be synced to a backend (like Firestore) later. It should store which student completed which quiz, their score, and a timestamp.
+
+Technology Stack
+Frontend: A single index.html file. This is mandatory.
+
+Use HTML5 for the structure.
+
+Use Tailwind CSS for all styling (loaded via CDN).
+
+Use Vanilla JavaScript for all application logic. Do not use React, Vue, or Angular. This ensures the app is lightweight and performs well on low-cost devices.
+
+Icons: Use an icon library like Lucide icons, loaded via CDN.
+
+UI/UX Design Guidelines
+Layout: A clean, card-based, mobile-first design. It must be fully responsive.
+
+Theme: Bright, vibrant, and encouraging. Use colors that are appealing to students.
+
+Interactivity: Buttons and cards should have clear hover and click states. Provide instant visual feedback for answers (e.g., green for correct, red for incorrect).
+
+Simplicity: The navigation should be intuitive. A student should be able to open the app and start a quiz in no more than three taps.
+
+Implementation Plan
+Create a single file named index.html that contains the following:
+
+HTML Structure:
+
+A header with the title "STEM Quest" and the language selector dropdown.
+
+A main dashboard section showing the user's total points and a grid of subject cards (e.g., "Mathematics", "Physics").
+
+A hidden view/template for displaying topics within a subject.
+
+A hidden view/template for the quiz interface (question, options, submit button).
+
+A hidden modal/view for the quiz results summary.
+
+JavaScript Logic:
+
+app.js Section:
+
+Content Store: Create JavaScript objects to hold the initial STEM content (subjects, topics, questions). This data should be written to IndexedDB on the first app load.
+
+State Management: Manage the current view (dashboard, topic view, quiz view), selected language, and student score.
+
+UI Rendering: Write functions to dynamically render the subject cards, topic lists, and quiz questions based on the current state.
+
+Quiz Engine: Logic to handle question display, answer checking, score calculation, and progression.
+
+Database Logic: A small module to handle all interactions with IndexedDB (initialize, read, write).
+
+sw.js (Service Worker) Section:
+
+Implement a basic service worker script inside a <script> tag or reference it.
+
+On install, it should cache the index.html file and any other essential assets.
+
+The fetch event listener should follow a "cache-first" strategy.
+
+Example Content Structure (for JavaScript)
+const content = {
+  en: {
+    subjects: [
+      {
+        id: 'math',
+        name: 'Mathematics',
+        icon: 'calculator', // Lucide icon name
+        topics: [
+          {
+            id: 'algebra-basics',
+            name: 'Algebra Basics',
+            questions: [
+              { q: 'What is 2 + 2 * 2?', options: ['6', '8', '4'], answer: '6' },
+              { q: 'Solve for x: x + 5 = 10', options: ['3', '5', '10'], answer: '5' }
+            ]
+          }
+        ]
+      },
+      // ... more subjects
+    ]
+  },
+  hi: { /* ... translated content ... */ },
+  te: { /* ... translated content ... */ }
+};
