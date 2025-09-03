@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEM Quest - Offline Learning Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    success: {
+                        DEFAULT: "var(--success)",
+                        foreground: "var(--success-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            },
+            fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+                heading: ['Poppins', 'sans-serif'],
+            }
+        },
+    };
+    </script>
+
+    <style>
+    :root {
+        --radius: 0.75rem;
+        
+        /* Light theme colors - extracted from design reference */
+        --background: hsl(45, 25%, 98%);
+        --foreground: hsl(222, 84%, 15%);
+        --card: hsl(0, 0%, 100%);
+        --card-foreground: hsl(222, 84%, 15%);
+        --primary: hsl(217, 91%, 60%);
+        --primary-foreground: hsl(0, 0%, 98%);
+        --secondary: hsl(142, 76%, 36%);
+        --secondary-foreground: hsl(0, 0%, 98%);
+        --muted: hsl(217, 32%, 96%);
+        --muted-foreground: hsl(215, 16%, 47%);
+        --accent: hsl(37, 91%, 55%);
+        --accent-foreground: hsl(0, 0%, 98%);
+        --success: hsl(142, 76%, 36%);
+        --success-foreground: hsl(0, 0%, 98%);
+        --destructive: hsl(0, 84%, 60%);
+        --destructive-foreground: hsl(0, 0%, 98%);
+        --border: hsl(214, 32%, 91%);
+        --input: hsl(214, 32%, 91%);
+        --ring: hsl(217, 91%, 60%);
+    }
+
+    .subject-math { --subject-color: hsl(266, 75%, 65%); }
+    .subject-physics { --subject-color: hsl(217, 91%, 60%); }
+    .subject-chemistry { --subject-color: hsl(142, 76%, 36%); }
+    .subject-biology { --subject-color: hsl(37, 91%, 55%); }
+
+    .quiz-option {
+        transition: all 0.2s ease-in-out;
+    }
+    .quiz-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .quiz-option.correct {
+        background-color: hsl(142, 76%, 36%);
+        color: white;
+        border-color: hsl(142, 76%, 36%);
+    }
+    .quiz-option.incorrect {
+        background-color: hsl(0, 84%, 60%);
+        color: white;
+        border-color: hsl(0, 84%, 60%);
+    }
+
+    .celebration {
+        animation: celebration 0.6s ease-out;
+    }
+    
+    @keyframes celebration {
+        0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+        50% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress-bar {
+        transition: width 0.3s ease-in-out;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+    </style>
+</head>
+
+<body class="bg-background font-sans text-foreground min-h-screen">
+    <!-- Header Component -->
+    <header class="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
+        <div class="max-w-md mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                        <i data-lucide="rocket" class="w-6 h-6 text-primary-foreground"></i>
+                    </div>
+                    <h1 class="text-xl font-heading font-bold text-foreground" id="app-title">STEM Quest</h1>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Points Display -->
+                    <div class="flex items-center space-x-2 bg-accent/10 px-3 py-2 rounded-lg">
+                        <i data-lucide="star" class="w-4 h-4 text-accent"></i>
+                        <span class="font-semibold text-accent" id="total-points">0</span>
+                    </div>
+                    
+                    <!-- Language Selector -->
+                    <select id="language-selector" class="bg-muted border-border rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring">
+                        <option value="en">EN</option>
+                        <option value="hi">हिं</option>
+                        <option value="te">తె</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 pb-8">
+        
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="pt-6">
+            <!-- Welcome Section -->
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-heading font-bold text-foreground mb-2" id="welcome-message">Welcome back, Explorer! 🚀</h2>
+                <p class="text-muted-foreground" id="welcome-subtext">Continue your STEM journey and discover amazing concepts</p>
+            </div>
+
+            <!-- Progress Summary Card -->
+            <div class="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl p-6 mb-8 border border-border">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-heading font-semibold text-foreground" id="progress-title">Your Progress</h3>
+                    <div class="bg-success/20 px-3 py-1 rounded-full">
+                        <span class="text-success font-semibold text-sm" id="user-level">Level 1</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary font-heading" id="dashboard-points">0</div>
+                        <div class="text-xs text-muted-foreground" id="points-label">Total Points</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-secondary font-heading" id="completed-quizzes">0</div>
+                        <div class="text-xs text-muted-foreground" id="quizzes-label">Quizzes Done</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-accent font-heading" id="day-streak">0</div>
+                        <div class="text-xs text-muted-foreground" id="streak-label">Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Grid -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-heading font-semibold text-foreground mb-4" id="choose-subject">Choose a Subject</h3>
+                
+                <div class="grid grid-cols-1 gap-4" id="subjects-grid">
+                    <!-- Subject cards will be populated by JavaScript -->
+                </div>
+
+                <!-- Achievement Banner -->
+                <div class="bg-gradient-to-r from-accent/20 to-secondary/20 rounded-2xl p-6 mt-8 border border-border" id="achievement-banner" style="display: none;">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
+                            <i data-lucide="trophy" class="w-7 h-7 text-accent-foreground"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-heading font-semibold text-foreground" id="achievement-title">New Achievement!</h4>
+                            <p class="text-muted-foreground text-sm" id="achievement-description">Complete your first quiz</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topics View -->
+        <div id="topics-view" class="pt-6 hidden">
+            <div class="flex items-center mb-6">
+                <button id="topics-back-btn" class="mr-4 p-2 hover:bg-muted rounded-lg transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-foreground"></i>
+                </button>
+                <div>
+                    <h2 class="text-xl font-heading font-bold text-foreground" id="selected-subject-name">Subject</h2>
+                    <p class="text-muted-foreground text-sm" id="topics-count">0 topics available</p>
+                </div>
+            </div>
+
+            <!-- Topics List -->
+            <div class="space-y-4" id="topics-list">
+                <!-- Topic cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="quiz-view" class="pt-6 hidden">
+            <!-- Quiz Header -->
+            <div class="flex items-center mb-6">
+                <button id="quiz-back-btn" class="mr-4 p-2 hover:bg-muted rounded-lg transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-foreground"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 class="text-lg font-heading font-bold text-foreground" id="current-topic-name">Topic</h2>
+                    <div class="flex items-center space-x-4 mt-1">
+                        <span class="text-sm text-muted-foreground" id="quiz-progress">Question 1 of 1</span>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="star" class="w-4 h-4 text-accent"></i>
+                            <span class="text-sm font-medium text-accent" id="quiz-points">0 pts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="bg-muted rounded-full h-2 mb-8">
+                <div class="bg-primary h-2 rounded-full progress-bar" id="quiz-progress-bar" style="width: 0%"></div>
+            </div>
+
+            <!-- Quiz Question Card -->
+            <div class="bg-card rounded-2xl border border-border p-6 mb-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-heading font-semibold text-foreground mb-4" id="question-text">Loading...</h3>
+                </div>
+
+                <!-- Answer Options -->
+                <div class="space-y-3" id="answer-options">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Quiz Controls -->
+            <div class="flex items-center justify-between">
+                <button id="skip-btn" class="px-6 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-border transition-colors">
+                    <i data-lucide="skip-forward" class="w-4 h-4 inline mr-2"></i>
+                    <span id="skip-text">Skip</span>
+                </button>
+                
+                <div class="flex items-center space-x-2 text-muted-foreground">
+                    <i data-lucide="help-circle" class="w-4 h-4"></i>
+                    <span class="text-sm" id="tap-to-select">Tap to select answer</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Quiz Results Modal -->
+    <div id="quiz-results-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-card rounded-3xl p-8 max-w-sm w-full mx-4 celebration" onclick="event.stopPropagation()">
+                <!-- Success Animation Area -->
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check" class="w-10 h-10 text-success-foreground"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-foreground mb-2" id="quiz-completed">Quiz Completed!</h3>
+                    <p class="text-muted-foreground" id="great-job">Great job on completing this quiz</p>
+                </div>
+
+                <!-- Score Summary -->
+                <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 mb-6">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-primary font-heading" id="final-score">0/0</div>
+                            <div class="text-xs text-muted-foreground" id="correct-label">Correct</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-accent font-heading" id="points-earned">+0</div>
+                            <div class="text-xs text-muted-foreground" id="points-earned-label">Points</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button id="continue-next-btn" class="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                        <i data-lucide="arrow-right" class="w-4 h-4 inline mr-2"></i>
+                        <span id="continue-next">Continue to Next Topic</span>
+                    </button>
+                    
+                    <div class="flex space-x-3">
+                        <button id="retake-btn" class="flex-1 bg-muted text-muted-foreground py-3 rounded-xl font-medium hover:bg-border transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                            <span id="retake-text">Retake</span>
+                        </button>
+                        <button id="dashboard-btn" class="flex-1 bg-secondary text-secondary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity">
+                            <i data-lucide="home" class="w-4 h-4 inline mr-2"></i>
+                            <span id="dashboard-text">Dashboard</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="fixed bottom-4 left-4 right-4 max-w-sm mx-auto bg-muted text-muted-foreground px-4 py-2 rounded-lg text-sm text-center hidden z-40">
+        <div class="flex items-center justify-center space-x-2">
+            <i data-lucide="wifi-off" class="w-4 h-4"></i>
+            <span id="offline-text">You're in offline mode</span>
+        </div>
+    </div>
+
+    <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Application State and Logic
+    (function() {
+        'use strict';
+
+        // Content Store with multilingual support
+        const content = {
+            en: {
+                ui: {
+                    title: 'STEM Quest',
+                    welcomeMessage: 'Welcome back, Explorer! 🚀',
+                    welcomeSubtext: 'Continue your STEM journey and discover amazing concepts',
+                    yourProgress: 'Your Progress',
+                    totalPoints: 'Total Points',
+                    quizzesCompleted: 'Quizzes Done',
+                    dayStreak: 'Day Streak',
+                    chooseSubject: 'Choose a Subject',
+                    progress: 'Progress',
+                    newAchievement: 'New Achievement!',
+                    quizCompleted: 'Quiz Completed!',
+                    greatJob: 'Great job on completing this quiz',
+                    correctAnswers: 'Correct',
+                    pointsEarned: 'Points',
+                    continueNext: 'Continue to Next Topic',
+                    retake: 'Retake',
+                    dashboard: 'Dashboard',
+                    skip: 'Skip',
+                    tapToSelect: 'Tap to select answer',
+                    offlineMode: "You're in offline mode",
+                    level: 'Level',
+                    topics: 'topics',
+                    questions: 'questions',
+                    minutes: 'min',
+                    completed: 'Completed',
+                    inProgress: 'In Progress',
+                    locked: 'Locked',
+                    requiresCompletion: 'Complete previous topics to unlock'
+                },
+                subjects: [
+                    {
+                        id: 'math',
+                        name: 'Mathematics',
+                        description: 'Algebra, Geometry, and Number Theory',
+                        icon: 'calculator',
+                        color: 'purple',
+                        topics: [
+                            {
+                                id: 'algebra-basics',
+                                name: 'Algebra Basics',
+                                description: 'Learn basic algebraic operations and equations',
+                                status: 'available',
+                                questions: [
+                                    {
+                                        id: 'q1',
+                                        text: 'What is the result of 2 + 2 × 2?',
+                                        options: ['6', '8', '4'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'q2', 
+                                        text: 'Solve for x: x + 5 = 10',
+                                        options: ['5', '3', '15'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'q3',
+                                        text: 'What is 3x + 2 = 14?',
+                                        options: ['4', '6', '5'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'q4',
+                                        text: 'Simplify: 2(x + 3) = ?',
+                                        options: ['2x + 6', '2x + 3', 'x + 6'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'q5',
+                                        text: 'If y = 2x + 1 and x = 3, what is y?',
+                                        options: ['7', '6', '5'],
+                                        correct: 0,
+                                        points: 10
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'geometry-basics',
+                                name: 'Geometry Fundamentals',
+                                description: 'Shapes, angles, and geometric calculations',
+                                status: 'available',
+                                questions: [
+                                    {
+                                        id: 'g1',
+                                        text: 'What is the sum of angles in a triangle?',
+                                        options: ['180°', '360°', '90°'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'g2',
+                                        text: 'Area of a rectangle with length 5 and width 3?',
+                                        options: ['15', '8', '16'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'g3',
+                                        text: 'How many sides does a hexagon have?',
+                                        options: ['6', '5', '8'],
+                                        correct: 0,
+                                        points: 10
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'physics',
+                        name: 'Physics',
+                        description: 'Motion, Energy, and Forces',
+                        icon: 'zap',
+                        color: 'blue',
+                        topics: [
+                            {
+                                id: 'motion-basics',
+                                name: 'Motion Basics',
+                                description: 'Understanding velocity, acceleration, and displacement',
+                                status: 'available',
+                                questions: [
+                                    {
+                                        id: 'p1',
+                                        text: 'What is the formula for speed?',
+                                        options: ['Distance/Time', 'Time/Distance', 'Distance × Time'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'p2',
+                                        text: 'Unit of acceleration is?',
+                                        options: ['m/s²', 'm/s', 'm'],
+                                        correct: 0,
+                                        points: 10
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'chemistry',
+                        name: 'Chemistry',
+                        description: 'Elements, Compounds, and Reactions',
+                        icon: 'test-tube',
+                        color: 'green',
+                        topics: [
+                            {
+                                id: 'periodic-table',
+                                name: 'Periodic Table',
+                                description: 'Elements and their properties',
+                                status: 'available',
+                                questions: [
+                                    {
+                                        id: 'c1',
+                                        text: 'What is the chemical symbol for water?',
+                                        options: ['H₂O', 'CO₂', 'NaCl'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'c2',
+                                        text: 'How many elements are in the periodic table?',
+                                        options: ['118', '120', '115'],
+                                        correct: 0,
+                                        points: 10
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'biology',
+                        name: 'Biology',
+                        description: 'Life Sciences and Ecosystems',
+                        icon: 'leaf',
+                        color: 'orange',
+                        topics: [
+                            {
+                                id: 'cell-biology',
+                                name: 'Cell Biology',
+                                description: 'Structure and function of cells',
+                                status: 'available',
+                                questions: [
+                                    {
+                                        id: 'b1',
+                                        text: 'What is the powerhouse of the cell?',
+                                        options: ['Mitochondria', 'Nucleus', 'Ribosome'],
+                                        correct: 0,
+                                        points: 10
+                                    },
+                                    {
+                                        id: 'b2',
+                                        text: 'Which organelle controls cell activities?',
+                                        options: ['Nucleus', 'Mitochondria', 'Vacuole'],
+                                        correct: 0,
+                                        points: 10
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            hi: {
+                ui: {
+                    title: 'STEM Quest',
+                    welcomeMessage: 'वापसी पर स्वागत है, खोजकर्ता! 🚀',
+                    welcomeSubtext: 'अपनी STEM यात्रा जारी रखें और अद्भुत अवधारणाओं की खोज करें',
+                    yourProgress: 'आपकी प्रगति',
+                    totalPoints: 'कुल अंक',
+                    quizzesCompleted: 'पूर्ण प्रश्नोत्तरी',
+                    dayStreak: 'दिन की लकीर',
+                    chooseSubject: 'एक विषय चुनें',
+                    progress: 'प्रगति',
+                    skip: 'छोड़ें',
+                    tapToSelect: 'उत्तर चुनने के लिए टैप करें',
+                    dashboard: 'डैशबोर्ड',
+                    retake: 'फिर से करें',
+                    offlineMode: 'आप ऑफ़लाइन मोड में हैं'
+                },
+                subjects: [] // Simplified for MVP - would include full translations
+            },
+            te: {
+                ui: {
+                    title: 'STEM Quest',
+                    welcomeMessage: 'తిరిగి స్వాగతం, అన్వేషకుడా! 🚀',
+                    welcomeSubtext: 'మీ STEM ప్రయాణాన్ని కొనసాగించండి మరియు అద్భుతమైన భావనలను కనుగొనండి',
+                    yourProgress: 'మీ పురోగతి',
+                    totalPoints: 'మొత్తం పాయింట్లు',
+                    quizzesCompleted: 'పూర్తైన క్విజ్‌లు',
+                    dayStreak: 'రోజుల వరుస',
+                    chooseSubject: 'ఒక విషయాన్ని ఎంచుకోండి',
+                    progress: 'పురోగతి',
+                    skip: 'దాటవేయండి',
+                    tapToSelect: 'సమాధానం ఎంచుకోవడానికి నొక్కండి',
+                    dashboard: 'డాష్‌బోర్డ్',
+                    retake: 'మళ్లీ చేయండి',
+                    offlineMode: 'మీరు ఆఫ్‌లైన్ మోడ్‌లో ఉన్నారు'
+                },
+                subjects: [] // Simplified for MVP - would include full translations
+            }
+        };
+
+        // Application State
+        let appState = {
+            currentView: 'dashboard',
+            selectedLanguage: 'en',
+            selectedSubject: null,
+            selectedTopic: null,
+            currentQuestionIndex: 0,
+            userProgress: {
+                totalPoints: 0,
+                completedQuizzes: 0,
+                streak: 0,
+                level: 1,
+                completedTopics: new Set()
+            },
+            quizState: {
+                currentScore: 0,
+                answers: [],
+                startTime: null
+            }
+        };
+
+        // Database Module using IndexedDB
+        const Database = {
+            dbName: 'STEMQuestDB',
+            version: 1,
+            db: null,
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve(this.db);
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        
+                        // Create object stores
+                        if (!db.objectStoreNames.contains('progress')) {
+                            const progressStore = db.createObjectStore('progress', { keyPath: 'id' });
+                            progressStore.createIndex('userId', 'userId', { unique: false });
+                        }
+                        
+                        if (!db.objectStoreNames.contains('content')) {
+                            db.createObjectStore('content', { keyPath: 'id' });
+                        }
+                        
+                        if (!db.objectStoreNames.contains('settings')) {
+                            db.createObjectStore('settings', { keyPath: 'key' });
+                        }
+                    };
+                });
+            },
+
+            async saveProgress(data) {
+                const transaction = this.db.transaction(['progress'], 'readwrite');
+                const store = transaction.objectStore('progress');
+                return store.put({
+                    id: Date.now(),
+                    ...data,
+                    timestamp: new Date().toISOString()
+                });
+            },
+
+            async loadProgress() {
+                const transaction = this.db.transaction(['progress'], 'readonly');
+                const store = transaction.objectStore('progress');
+                return new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+
+            async saveSettings(settings) {
+                const transaction = this.db.transaction(['settings'], 'readwrite');
+                const store = transaction.objectStore('settings');
+                for (const [key, value] of Object.entries(settings)) {
+                    await store.put({ key, value });
+                }
+            },
+
+            async loadSettings() {
+                const transaction = this.db.transaction(['settings'], 'readonly');
+                const store = transaction.objectStore('settings');
+                return new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => {
+                        const settings = {};
+                        request.result.forEach(item => {
+                            settings[item.key] = item.value;
+                        });
+                        resolve(settings);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
+        };
+
+        // UI Update Functions
+        function updateUI() {
+            const currentContent = content[appState.selectedLanguage];
+            
+            // Update header
+            document.getElementById('app-title').textContent = currentContent.ui.title;
+            document.getElementById('total-points').textContent = appState.userProgress.totalPoints;
+            
+            // Update dashboard
+            document.getElementById('welcome-message').textContent = currentContent.ui.welcomeMessage;
+            document.getElementById('welcome-subtext').textContent = currentContent.ui.welcomeSubtext;
+            document.getElementById('progress-title').textContent = currentContent.ui.yourProgress;
+            document.getElementById('user-level').textContent = `${currentContent.ui.level} ${appState.userProgress.level}`;
+            document.getElementById('dashboard-points').textContent = appState.userProgress.totalPoints;
+            document.getElementById('completed-quizzes').textContent = appState.userProgress.completedQuizzes;
+            document.getElementById('day-streak').textContent = appState.userProgress.streak;
+            document.getElementById('points-label').textContent = currentContent.ui.totalPoints;
+            document.getElementById('quizzes-label').textContent = currentContent.ui.quizzesCompleted;
+            document.getElementById('streak-label').textContent = currentContent.ui.dayStreak;
+            document.getElementById('choose-subject').textContent = currentContent.ui.chooseSubject;
+            
+            // Update other UI elements
+            document.getElementById('skip-text').textContent = currentContent.ui.skip;
+            document.getElementById('tap-to-select').textContent = currentContent.ui.tapToSelect;
+            document.getElementById('dashboard-text').textContent = currentContent.ui.dashboard;
+            document.getElementById('retake-text').textContent = currentContent.ui.retake;
+            document.getElementById('offline-text').textContent = currentContent.ui.offlineMode;
+        }
+
+        function renderSubjects() {
+            const currentContent = content[appState.selectedLanguage];
+            const subjectsGrid = document.getElementById('subjects-grid');
+            
+            subjectsGrid.innerHTML = '';
+            
+            currentContent.subjects.forEach(subject => {
+                const completedTopics = subject.topics.filter(topic => 
+                    appState.userProgress.completedTopics.has(topic.id)
+                ).length;
+                const progress = Math.round((completedTopics / subject.topics.length) * 100);
+                
+                const subjectCard = document.createElement('div');
+                subjectCard.className = `bg-card rounded-2xl border border-border p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] subject-${subject.id}`;
+                subjectCard.dataset.subjectId = subject.id;
+                
+                subjectCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-${subject.color}-500 rounded-xl flex items-center justify-center">
+                            <i data-lucide="${subject.icon}" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-muted-foreground">${currentContent.ui.progress}</div>
+                            <div class="text-lg font-bold text-${subject.color}-600">${progress}%</div>
+                        </div>
+                    </div>
+                    <h4 class="text-xl font-heading font-semibold text-foreground mb-2">${subject.name}</h4>
+                    <p class="text-muted-foreground text-sm mb-4">${subject.description}</p>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-1 bg-muted rounded-full h-2">
+                            <div class="bg-${subject.color}-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                        </div>
+                        <span class="text-sm text-muted-foreground">${subject.topics.length} ${currentContent.ui.topics}</span>
+                    </div>
+                `;
+                
+                subjectCard.addEventListener('click', () => selectSubject(subject.id));
+                subjectsGrid.appendChild(subjectCard);
+            });
+            
+            // Re-initialize icons for new elements
+            lucide.createIcons();
+        }
+
+        function renderTopics() {
+            if (!appState.selectedSubject) return;
+            
+            const currentContent = content[appState.selectedLanguage];
+            const topicsList = document.getElementById('topics-list');
+            
+            document.getElementById('selected-subject-name').textContent = appState.selectedSubject.name;
+            document.getElementById('topics-count').textContent = `${appState.selectedSubject.topics.length} ${currentContent.ui.topics} available`;
+            
+            topicsList.innerHTML = '';
+            
+            appState.selectedSubject.topics.forEach((topic, index) => {
+                const isCompleted = appState.userProgress.completedTopics.has(topic.id);
+                const isLocked = index > 0 && !appState.userProgress.completedTopics.has(appState.selectedSubject.topics[index - 1].id);
+                
+                let statusClass, statusText;
+                if (isCompleted) {
+                    statusClass = 'bg-success/20 text-success';
+                    statusText = currentContent.ui.completed || 'Completed';
+                } else if (isLocked) {
+                    statusClass = 'bg-muted text-muted-foreground';
+                    statusText = currentContent.ui.locked || 'Locked';
+                } else {
+                    statusClass = 'bg-primary/20 text-primary';
+                    statusText = currentContent.ui.inProgress || 'Available';
+                }
+                
+                const topicCard = document.createElement('div');
+                topicCard.className = `bg-card rounded-2xl border border-border p-5 ${isLocked ? 'opacity-50' : 'cursor-pointer hover:shadow-md'} transition-all duration-200`;
+                
+                if (!isLocked) {
+                    topicCard.dataset.topicId = topic.id;
+                }
+                
+                topicCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-heading font-semibold text-foreground">${topic.name}</h4>
+                        <div class="flex items-center space-x-2">
+                            <div class="${statusClass} px-2 py-1 rounded-full">
+                                <span class="text-xs font-medium">${statusText}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted-foreground text-sm mb-3">${topic.description}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="help-circle" class="w-4 h-4 text-muted-foreground"></i>
+                            <span class="text-sm text-muted-foreground">${topic.questions.length} ${currentContent.ui.questions}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="${isLocked ? 'lock' : 'clock'}" class="w-4 h-4 text-muted-foreground"></i>
+                            <span class="text-sm text-muted-foreground">
+                                ${isLocked ? (currentContent.ui.requiresCompletion || 'Complete previous topics') : Math.ceil(topic.questions.length * 0.5) + ' ' + (currentContent.ui.minutes || 'min')}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                if (!isLocked) {
+                    topicCard.addEventListener('click', () => selectTopic(topic.id));
+                }
+                
+                topicsList.appendChild(topicCard);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function renderQuestion() {
+            if (!appState.selectedTopic || !appState.selectedTopic.questions[appState.currentQuestionIndex]) return;
+            
+            const currentContent = content[appState.selectedLanguage];
+            const question = appState.selectedTopic.questions[appState.currentQuestionIndex];
+            const totalQuestions = appState.selectedTopic.questions.length;
+            const progressPercent = ((appState.currentQuestionIndex + 1) / totalQuestions) * 100;
+            
+            // Update quiz header
+            document.getElementById('current-topic-name').textContent = appState.selectedTopic.name;
+            document.getElementById('quiz-progress').textContent = `Question ${appState.currentQuestionIndex + 1} of ${totalQuestions}`;
+            document.getElementById('quiz-points').textContent = `${appState.quizState.currentScore} pts`;
+            document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+            
+            // Update question
+            document.getElementById('question-text').textContent = question.text;
+            
+            // Render options
+            const optionsContainer = document.getElementById('answer-options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'quiz-option w-full bg-card border-2 border-border rounded-xl p-4 text-left hover:border-primary transition-all duration-200';
+                optionButton.dataset.answerIndex = index;
+                
+                const letters = ['A', 'B', 'C', 'D'];
+                optionButton.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                            <span class="font-medium text-muted-foreground">${letters[index]}</span>
+                        </div>
+                        <span class="font-medium text-foreground">${option}</span>
+                    </div>
+                `;
+                
+                optionButton.addEventListener('click', () => selectAnswer(index));
+                optionsContainer.appendChild(optionButton);
+            });
+        }
+
+        // Navigation Functions
+        function showView(viewName) {
+            document.querySelectorAll('[id$="-view"], [id$="-modal"]').forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            const targetView = document.getElementById(viewName);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                targetView.classList.add('slide-in');
+                appState.currentView = viewName.replace('-view', '').replace('-modal', '');
+            }
+        }
+
+        function selectSubject(subjectId) {
+            const currentContent = content[appState.selectedLanguage];
+            appState.selectedSubject = currentContent.subjects.find(s => s.id === subjectId);
+            renderTopics();
+            showView('topics-view');
+        }
+
+        function selectTopic(topicId) {
+            if (!appState.selectedSubject) return;
+            
+            appState.selectedTopic = appState.selectedSubject.topics.find(t => t.id === topicId);
+            appState.currentQuestionIndex = 0;
+            appState.quizState = { 
+                currentScore: 0, 
+                answers: [],
+                startTime: Date.now()
+            };
+            
+            renderQuestion();
+            showView('quiz-view');
+        }
+
+        function selectAnswer(answerIndex) {
+            if (!appState.selectedTopic) return;
+            
+            const question = appState.selectedTopic.questions[appState.currentQuestionIndex];
+            const isCorrect = answerIndex === question.correct;
+            
+            // Visual feedback
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === answerIndex && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+
+            // Update score
+            if (isCorrect) {
+                appState.quizState.currentScore += question.points;
+            }
+
+            appState.quizState.answers.push({
+                questionId: question.id,
+                selectedAnswer: answerIndex,
+                correct: isCorrect,
+                points: isCorrect ? question.points : 0
+            });
+
+            // Continue to next question or show results
+            setTimeout(() => {
+                if (appState.currentQuestionIndex < appState.selectedTopic.questions.length - 1) {
+                    appState.currentQuestionIndex++;
+                    renderQuestion();
+                } else {
+                    showQuizResults();
+                }
+            }, 1500);
+        }
+
+        function showQuizResults() {
+            const totalQuestions = appState.selectedTopic.questions.length;
+            const correctAnswers = appState.quizState.answers.filter(a => a.correct).length;
+            const pointsEarned = appState.quizState.currentScore;
+            
+            // Update user progress
+            appState.userProgress.totalPoints += pointsEarned;
+            appState.userProgress.completedQuizzes++;
+            appState.userProgress.completedTopics.add(appState.selectedTopic.id);
+            
+            // Update level based on points
+            const newLevel = Math.floor(appState.userProgress.totalPoints / 100) + 1;
+            if (newLevel > appState.userProgress.level) {
+                appState.userProgress.level = newLevel;
+            }
+            
+            // Save progress to IndexedDB
+            Database.saveProgress({
+                topicId: appState.selectedTopic.id,
+                subjectId: appState.selectedSubject.id,
+                score: correctAnswers,
+                totalQuestions: totalQuestions,
+                pointsEarned: pointsEarned,
+                answers: appState.quizState.answers,
+                duration: Date.now() - appState.quizState.startTime
+            });
+            
+            // Update results modal
+            document.getElementById('final-score').textContent = `${correctAnswers}/${totalQuestions}`;
+            document.getElementById('points-earned').textContent = `+${pointsEarned}`;
+            
+            // Show achievement if first quiz
+            if (appState.userProgress.completedQuizzes === 1) {
+                const banner = document.getElementById('achievement-banner');
+                banner.style.display = 'block';
+                document.getElementById('achievement-description').textContent = 'Complete your first quiz - Achievement unlocked!';
+            }
+            
+            updateUI();
+            document.getElementById('quiz-results-modal').classList.remove('hidden');
+        }
+
+        function skipQuestion() {
+            if (appState.currentQuestionIndex < appState.selectedTopic.questions.length - 1) {
+                appState.currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function goBack() {
+            if (appState.currentView === 'topics') {
+                showView('dashboard-view');
+            } else if (appState.currentView === 'quiz') {
+                showView('topics-view');
+            }
+        }
+
+        function retakeQuiz() {
+            appState.currentQuestionIndex = 0;
+            appState.quizState = { 
+                currentScore: 0, 
+                answers: [],
+                startTime: Date.now()
+            };
+            document.getElementById('quiz-results-modal').classList.add('hidden');
+            renderQuestion();
+            showView('quiz-view');
+        }
+
+        function switchLanguage(lang) {
+            appState.selectedLanguage = lang;
+            updateUI();
+            if (appState.currentView === 'dashboard') {
+                renderSubjects();
+            } else if (appState.currentView === 'topics') {
+                renderTopics();
+            }
+            
+            Database.saveSettings({ language: lang });
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                const swCode = `
+                    const CACHE_NAME = 'stem-quest-v1';
+                    const ASSETS_TO_CACHE = [
+                        '/',
+                        '/index.html',
+                        'https://cdn.tailwindcss.com',
+                        'https://unpkg.com/lucide@latest/dist/umd/lucide.js',
+                        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap'
+                    ];
+
+                    self.addEventListener('install', function(event) {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(function(cache) {
+                                    return cache.addAll(ASSETS_TO_CACHE);
+                                })
+                        );
+                    });
+
+                    self.addEventListener('fetch', function(event) {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(function(response) {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(function() {
+                        console.log('Service Worker registered successfully');
+                    })
+                    .catch(function(error) {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Online/Offline Status
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offline-indicator');
+            if (navigator.onLine) {
+                indicator.classList.add('hidden');
+            } else {
+                indicator.classList.remove('hidden');
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('STEM Quest initializing...');
+            
+            // Initialize IndexedDB
+            try {
+                await Database.init();
+                console.log('Database initialized');
+                
+                // Load saved settings
+                const settings = await Database.loadSettings();
+                if (settings.language) {
+                    appState.selectedLanguage = settings.language;
+                    document.getElementById('language-selector').value = settings.language;
+                }
+                
+                // Load saved progress
+                const progressData = await Database.loadProgress();
+                if (progressData.length > 0) {
+                    // Reconstruct user progress from saved data
+                    progressData.forEach(record => {
+                        appState.userProgress.totalPoints += record.pointsEarned || 0;
+                        if (record.topicId) {
+                            appState.userProgress.completedTopics.add(record.topicId);
+                        }
+                    });
+                    appState.userProgress.completedQuizzes = progressData.length;
+                    appState.userProgress.level = Math.floor(appState.userProgress.totalPoints / 100) + 1;
+                }
+            } catch (error) {
+                console.error('Database initialization failed:', error);
+            }
+            
+            // Initialize UI
+            updateUI();
+            renderSubjects();
+            
+            // Language selector
+            document.getElementById('language-selector').addEventListener('change', function(e) {
+                switchLanguage(e.target.value);
+            });
+
+            // Navigation buttons
+            document.getElementById('topics-back-btn').addEventListener('click', goBack);
+            document.getElementById('quiz-back-btn').addEventListener('click', goBack);
+            document.getElementById('skip-btn').addEventListener('click', skipQuestion);
+            
+            // Modal buttons
+            document.getElementById('continue-next-btn').addEventListener('click', function() {
+                document.getElementById('quiz-results-modal').classList.add('hidden');
+                showView('topics-view');
+            });
+            
+            document.getElementById('retake-btn').addEventListener('click', retakeQuiz);
+            
+            document.getElementById('dashboard-btn').addEventListener('click', function() {
+                document.getElementById('quiz-results-modal').classList.add('hidden');
+                showView('dashboard-view');
+            });
+
+            // Modal close
+            document.getElementById('quiz-results-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                    showView('dashboard-view');
+                }
+            });
+
+            // Online/offline status
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+            
+            console.log('STEM Quest initialized successfully');
+        });
+
+        // Export for debugging
+        window.STEMQuest = {
+            state: appState,
+            content: content,
+            db: Database,
+            functions: {
+                selectSubject,
+                selectTopic,
+                selectAnswer,
+                switchLanguage,
+                showView
+            }
+        };
+
+    })();
+    </script>
+</body>
+</html>
