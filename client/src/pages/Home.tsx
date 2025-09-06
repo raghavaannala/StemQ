@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -315,7 +315,39 @@ const STORAGE_KEYS = {
 const loadFromStorage = (key: string, defaultValue: any): any => {
   try {
     const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : defaultValue;
+    if (!stored) return defaultValue;
+    
+    const parsed = JSON.parse(stored);
+    
+    // Handle activities array - convert timestamp strings back to Date objects
+    if (key === STORAGE_KEYS.ACTIVITIES && Array.isArray(parsed)) {
+      return parsed.map(activity => ({
+        ...activity,
+        timestamp: new Date(activity.timestamp)
+      }));
+    }
+    
+    // Handle user progress - convert lastActivity string back to Date object
+    if (key === STORAGE_KEYS.USER_PROGRESS && parsed.lastActivity) {
+      return {
+        ...parsed,
+        lastActivity: new Date(parsed.lastActivity)
+      };
+    }
+    
+    // Handle achievements - merge with original data to preserve icon components
+    if (key === STORAGE_KEYS.ACHIEVEMENTS && Array.isArray(parsed)) {
+      return achievementsData.map(originalAchievement => {
+        const storedAchievement = parsed.find(a => a.id === originalAchievement.id);
+        return {
+          ...originalAchievement,
+          earned: storedAchievement?.earned || false,
+          earnedDate: storedAchievement?.earnedDate ? new Date(storedAchievement.earnedDate) : undefined
+        };
+      });
+    }
+    
+    return parsed;
   } catch {
     return defaultValue;
   }
@@ -331,7 +363,7 @@ const saveToStorage = (key: string, value: any): void => {
 
 function Home() {
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   
   // State management
   const [selectedLanguage, setSelectedLanguage] = useState(() => 
@@ -354,10 +386,19 @@ function Home() {
     loadFromStorage(STORAGE_KEYS.ACTIVITIES, [])
   );
   
-  const [achievements, setAchievements] = useState<Achievement[]>(() => 
-    loadFromStorage(STORAGE_KEYS.ACHIEVEMENTS, achievementsData)
-  );
-  
+  const [achievements, setAchievements] = useState<Achievement[]>(() => {
+    const stored = loadFromStorage(STORAGE_KEYS.ACHIEVEMENTS, achievementsData);
+    // Ensure we always have the original achievement data with proper icons
+    return achievementsData.map(originalAchievement => {
+      const storedAchievement = stored.find((a: Achievement) => a.id === originalAchievement.id);
+      return {
+        ...originalAchievement,
+        earned: storedAchievement?.earned || false,
+        earnedDate: storedAchievement?.earnedDate || undefined
+      };
+    });
+  });
+
   const [subjects, setSubjects] = useState<Subject[]>(subjectsData);
 
   // Update subjects based on user progress
@@ -480,7 +521,7 @@ function Home() {
         description: `Starting ${quiz.title}...`,
       });
       // Navigate to the quiz page
-      navigate(`/quiz/${quizId}`);
+      setLocation(`/quiz/${quizId}`);
     } else {
       toast({
         title: "Quiz Not Found",
@@ -508,7 +549,7 @@ function Home() {
   };
 
   const handleReviewProgress = () => {
-    navigate("/analytics");
+    setLocation("/analytics");
   };
 
   const handleLeaderboard = () => {
@@ -518,9 +559,16 @@ function Home() {
     });
   };
 
-  const formatTimeAgo = (date: Date): string => {
+  const formatTimeAgo = (date: Date | string): string => {
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const targetDate = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(targetDate.getTime())) {
+      return "Unknown time";
+    }
+    
+    const diffInMinutes = Math.floor((now.getTime() - targetDate.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
@@ -772,7 +820,11 @@ function Home() {
               <CardContent className="space-y-4">
                 {activities.length > 0 ? (
                   activities
-                    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+                    .sort((a, b) => {
+                      const dateA = typeof a.timestamp === 'string' ? new Date(a.timestamp) : a.timestamp;
+                      const dateB = typeof b.timestamp === 'string' ? new Date(b.timestamp) : b.timestamp;
+                      return dateB.getTime() - dateA.getTime();
+                    })
                     .slice(0, 4)
                     .map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

@@ -17,6 +17,19 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 5173,
+    host: "127.0.0.1",
+    hmr: {
+      port: 5173,
+      host: "127.0.0.1",
+    },
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3200",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -198,7 +198,7 @@ const GAMIFICATION = {
 
 export default function Quiz() {
   const { quizId } = useParams();
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const { playCorrect, playIncorrect, playLevelUp, playAchievement, playStreak, playComplete } = useAudioFeedback();
   
@@ -230,9 +230,9 @@ export default function Quiz() {
         description: "The requested quiz could not be found.",
         variant: "destructive"
       });
-      navigate("/");
+      setLocation("/");
     }
-  }, [quizId, navigate, toast]);
+  }, [quizId, setLocation, toast]);
 
   // Timer effects
   useEffect(() => {
@@ -494,7 +494,7 @@ export default function Quiz() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate("/")}
+                onClick={() => setLocation("/")}
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -594,7 +594,7 @@ export default function Quiz() {
                   <Play className="h-5 w-5 mr-2" />
                   Start Quiz
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/")} size="lg">
+                <Button variant="outline" onClick={() => setLocation("/")} size="lg">
                   Cancel
                 </Button>
               </div>
@@ -680,7 +680,7 @@ export default function Quiz() {
                   <RotateCcw className="h-5 w-5 mr-2" />
                   Retake Quiz
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/")} size="lg" className="flex-1">
+                <Button variant="outline" onClick={() => setLocation("/")} size="lg" className="flex-1">
                   Back to Home
                 </Button>
               </div>
@@ -782,7 +782,7 @@ export default function Quiz() {
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => navigate("/")}
+                    onClick={() => setLocation("/")}
                     disabled={showResult}
                   >
                     Exit Quiz
