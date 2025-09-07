@@ -26,7 +26,8 @@ import {
   Zap,
   Play,
   CheckCircle,
-  Lock
+  Lock,
+  PenTool
 } from "lucide-react";
 
 // Types and Interfaces
@@ -258,6 +259,115 @@ const subjectsData: Subject[] = [
         ]
       }
     ]
+  },
+  {
+    id: "english",
+    name: "English",
+    icon: PenTool,
+    color: "bg-red-500",
+    description: "Grammar, Vocabulary, and Language Skills",
+    topics: [
+      {
+        id: "basic-grammar",
+        name: "Basic Grammar",
+        description: "Parts of speech, sentence structure, and basic rules",
+        unlocked: true,
+        completed: false,
+        quizzes: [
+          {
+            id: "grammar-quiz-1",
+            title: "Parts of Speech",
+            points: 50,
+            difficulty: 'easy',
+            questions: [
+              {
+                id: "e1",
+                question: "Which word is a noun in this sentence: 'The cat runs quickly'?",
+                options: ["cat", "runs", "quickly"],
+                correct: 0,
+                explanation: "A noun is a person, place, thing, or idea. 'Cat' is a thing."
+              },
+              {
+                id: "e2",
+                question: "What type of word is 'beautiful' in 'She is beautiful'?",
+                options: ["Adjective", "Noun", "Verb"],
+                correct: 0,
+                explanation: "An adjective describes or modifies a noun or pronoun."
+              },
+              {
+                id: "e3",
+                question: "Identify the verb in: 'They walked to school'",
+                options: ["walked", "They", "school"],
+                correct: 0,
+                explanation: "A verb shows action or state of being. 'Walked' shows past action."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "sentence-structure",
+        name: "Sentence Structure",
+        description: "Subject, predicate, and sentence types",
+        unlocked: false,
+        completed: false,
+        quizzes: [
+          {
+            id: "sentence-quiz-1",
+            title: "Subject and Predicate",
+            points: 50,
+            difficulty: 'medium',
+            questions: [
+              {
+                id: "s1",
+                question: "What is the subject in: 'The big dog barked loudly'?",
+                options: ["The big dog", "barked loudly", "big dog"],
+                correct: 0,
+                explanation: "The subject is who or what the sentence is about, including all modifiers."
+              },
+              {
+                id: "s2",
+                question: "Which sentence is a compound sentence?",
+                options: ["I like pizza, and she likes pasta.", "I like pizza.", "Because I was hungry."],
+                correct: 0,
+                explanation: "A compound sentence has two independent clauses joined by a conjunction."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "punctuation",
+        name: "Punctuation",
+        description: "Commas, periods, and other punctuation marks",
+        unlocked: false,
+        completed: false,
+        quizzes: [
+          {
+            id: "punctuation-quiz-1",
+            title: "Basic Punctuation",
+            points: 50,
+            difficulty: 'easy',
+            questions: [
+              {
+                id: "p1",
+                question: "Which sentence is correctly punctuated?",
+                options: ["Hello, how are you?", "Hello how are you.", "Hello; how are you"],
+                correct: 0,
+                explanation: "Use a comma after greetings and a question mark for questions."
+              },
+              {
+                id: "p2",
+                question: "Where should the apostrophe go in: 'The dogs bone'?",
+                options: ["dog's", "dogs'", "dogs"],
+                correct: 0,
+                explanation: "Use an apostrophe before 's' to show possession for singular nouns."
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -285,6 +395,14 @@ const achievementsData: Achievement[] = [
     icon: Dna, 
     earned: false, 
     requirement: "Complete all biology topics"
+  },
+  { 
+    id: "english-expert", 
+    name: "English Expert", 
+    description: "Complete all English topics",
+    icon: PenTool, 
+    earned: false, 
+    requirement: "Complete all English topics"
   },
   { 
     id: "perfect-score", 
@@ -471,10 +589,20 @@ function Home() {
       hasNewAchievement = true;
     }
 
+    // English Expert
+    const englishTopics = subjects.find(s => s.id === 'english')?.topics.length || 0;
+    const completedEnglishTopics = newProgress.completedTopics.filter(topicId => 
+      subjects.find(s => s.id === 'english')?.topics.some(t => t.id === topicId)
+    ).length;
+    if (completedEnglishTopics >= englishTopics && !newAchievements[3].earned) {
+      newAchievements[3] = { ...newAchievements[3], earned: true, earnedDate: new Date() };
+      hasNewAchievement = true;
+    }
+
     // Perfect Score
     const hasPerfectScore = newActivities.some(activity => activity.score === 100);
-    if (hasPerfectScore && !newAchievements[3].earned) {
-      newAchievements[3] = { ...newAchievements[3], earned: true, earnedDate: new Date() };
+    if (hasPerfectScore && !newAchievements[4].earned) {
+      newAchievements[4] = { ...newAchievements[4], earned: true, earnedDate: new Date() };
       hasNewAchievement = true;
     }
 
@@ -483,8 +611,8 @@ function Home() {
     const todayActivities = newActivities.filter(activity => 
       activity.timestamp.toDateString() === today
     );
-    if (todayActivities.length >= 5 && !newAchievements[4].earned) {
-      newAchievements[4] = { ...newAchievements[4], earned: true, earnedDate: new Date() };
+    if (todayActivities.length >= 5 && !newAchievements[5].earned) {
+      newAchievements[5] = { ...newAchievements[5], earned: true, earnedDate: new Date() };
       hasNewAchievement = true;
     }
 
