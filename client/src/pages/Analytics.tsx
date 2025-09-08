@@ -59,7 +59,11 @@ interface ClassStats {
   averageStreak: number;
 }
 
-export default function Analytics() {
+interface AnalyticsProps {
+  grade?: string;
+}
+
+export default function Analytics({ grade }: AnalyticsProps = {}) {
   const [selectedTimeRange, setSelectedTimeRange] = useState("7d");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [isLoading, setIsLoading] = useState(false);

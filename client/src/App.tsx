@@ -6,10 +6,12 @@ import Home from "@/pages/Home";
 import Quiz from "@/pages/Quiz";
 import Analytics from "@/pages/Analytics";
 import NotFound from "@/pages/not-found";
+import SignIn from "@/pages/SignIn";
 import GradeSelection from "@/pages/GradeSelection";
 import GradeDashboard from "@/pages/GradeDashboard";
 import Games from "@/pages/Games";
 import GamePlayer from "@/pages/GamePlayer";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -18,46 +20,80 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Switch>
-          {/* Grade Selection - Entry Point */}
-          <Route path="/" component={GradeSelection} />
-          <Route path="/grade-selection" component={GradeSelection} />
+          {/* Authentication Routes */}
+          <Route path="/signin" component={SignIn} />
           
-          {/* Grade-specific Dashboards */}
+          {/* Redirect root to signin for authentication */}
+          <Route path="/">
+            {() => {
+              window.location.href = '/signin';
+              return null;
+            }}
+          </Route>
+          
+          {/* Protected Grade-specific Dashboards */}
           <Route path="/dashboard/:grade">
-            {(params) => <GradeDashboard grade={params.grade} />}
-          </Route>
-          
-          {/* Grade-specific Games */}
-          <Route path="/games/:grade">
-            {(params) => <Games grade={params.grade} />}
-          </Route>
-          
-          {/* Individual Game Player */}
-          <Route path="/game/:grade/:gameId">
-            {(params) => <GamePlayer grade={params.grade} gameId={params.gameId} />}
-          </Route>
-          
-          {/* Grade-specific Quiz Routes */}
-          <Route path="/quiz/:grade/:subject/:topic/:quizId">
             {(params) => (
-              <Quiz 
-                grade={params.grade}
-                subjectId={params.subject}
-                topicId={params.topic}
-                quizId={params.quizId}
-              />
+              <ProtectedRoute requireGrade={params.grade}>
+                <GradeDashboard grade={params.grade} />
+              </ProtectedRoute>
             )}
           </Route>
           
-          {/* Grade-specific Analytics */}
-          <Route path="/analytics/:grade">
-            {(params) => <Analytics grade={params.grade} />}
+          {/* Protected Grade-specific Games */}
+          <Route path="/games/:grade">
+            {(params) => (
+              <ProtectedRoute requireGrade={params.grade}>
+                <Games grade={params.grade} />
+              </ProtectedRoute>
+            )}
           </Route>
           
-          {/* Legacy Routes - Redirect to Grade Selection */}
-          <Route path="/home" component={GradeSelection} />
-          <Route path="/quiz" component={GradeSelection} />
-          <Route path="/analytics" component={GradeSelection} />
+          {/* Protected Individual Game Player */}
+          <Route path="/game/:grade/:gameId">
+            {(params) => (
+              <ProtectedRoute requireGrade={params.grade}>
+                <GamePlayer grade={params.grade} gameId={params.gameId} />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          {/* Protected Grade-specific Quiz Routes */}
+          <Route path="/quiz/:grade/:subject/:topic/:quizId">
+            {(params) => (
+              <ProtectedRoute requireGrade={params.grade}>
+                <Quiz 
+                  grade={params.grade}
+                  subjectId={params.subject}
+                  topicId={params.topic}
+                  quizId={params.quizId}
+                />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          {/* Protected Grade-specific Analytics */}
+          <Route path="/analytics/:grade">
+            {(params) => (
+              <ProtectedRoute requireGrade={params.grade}>
+                <Analytics grade={params.grade} />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          {/* Legacy Routes - Redirect to signin */}
+          <Route path="/home">
+            {() => {
+              window.location.href = '/signin';
+              return null;
+            }}
+          </Route>
+          <Route path="/grade-selection">
+            {() => {
+              window.location.href = '/signin';
+              return null;
+            }}
+          </Route>
           
           {/* 404 */}
           <Route component={NotFound} />

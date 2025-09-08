@@ -68,12 +68,10 @@ export default function GradeSelection() {
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId);
     
-    // Check if user data already exists
     const existingUser = localStorage.getItem('stemquest_user');
     if (existingUser) {
-      // User already registered, go directly to dashboard
       const userData = JSON.parse(existingUser);
-      userData.grade = gradeId; // Update grade if different
+      userData.grade = gradeId;
       localStorage.setItem('stemquest_user', JSON.stringify(userData));
       
       toast({
@@ -83,13 +81,11 @@ export default function GradeSelection() {
       
       setLocation(`/dashboard/${gradeId}`);
     } else {
-      // New user, show registration form
       setShowUserForm(true);
     }
   };
 
   const handleQuickStart = (gradeId: string) => {
-    // Allow guest access without registration
     const guestData = {
       username: "Guest",
       fullName: "Guest User",
@@ -127,7 +123,6 @@ export default function GradeSelection() {
       return;
     }
 
-    // Store user data
     const userData = {
       username: username.trim(),
       fullName: fullName.trim() || username.trim(),
@@ -146,16 +141,24 @@ export default function GradeSelection() {
     setLocation(`/dashboard/${selectedGrade}`);
   };
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full text-lg font-medium mb-4">
-            <Brain className="h-6 w-6" />
-            <span>STEM Quest</span>
+        {/* Header with Company Logo */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center space-x-6 
+            bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 
+            text-white px-14 py-8 rounded-full 
+            text-5xl font-extrabold shadow-2xl 
+            hover:scale-110 hover:shadow-purple-500/50 
+            transform transition-all duration-500">
+            
+            <Brain className="h-16 w-16 drop-shadow-lg animate-bounce" />
+            <span className="tracking-wide drop-shadow-md">STEM Quest</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+
+          <h1 className="text-4xl font-bold text-gray-900 mt-8 mb-4">
             Choose Your Learning Path
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -234,7 +237,7 @@ export default function GradeSelection() {
           })}
         </div>
 
-        {/* User Registration Form - Only show when needed */}
+        {/* User Registration Form */}
         {showUserForm && (
           <Card className="mb-8 max-w-md mx-auto">
             <CardHeader>
@@ -283,6 +286,7 @@ export default function GradeSelection() {
             </CardContent>
           </Card>
         )}
+
 
         {/* Stats */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">

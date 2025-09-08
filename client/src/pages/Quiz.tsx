@@ -196,9 +196,22 @@ const GAMIFICATION = {
   }
 };
 
-export default function Quiz() {
-  const { quizId } = useParams();
+interface QuizProps {
+  grade?: string;
+  subjectId?: string;
+  topicId?: string;
+  quizId?: string;
+}
+
+export default function Quiz({ grade: propGrade, subjectId: propSubjectId, topicId: propTopicId, quizId: propQuizId }: QuizProps = {}) {
+  const params = useParams();
   const [location, setLocation] = useLocation();
+  
+  // Use props or fallback to params
+  const grade = propGrade || params.grade;
+  const subjectId = propSubjectId || params.subject;
+  const topicId = propTopicId || params.topic;
+  const quizId = propQuizId || params.quizId;
   const { toast } = useToast();
   const { playCorrect, playIncorrect, playLevelUp, playAchievement, playStreak, playComplete } = useAudioFeedback();
   

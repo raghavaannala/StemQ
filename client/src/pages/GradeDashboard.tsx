@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { getCurrentUser, signOut } from "@/lib/auth";
 import { 
   Trophy, 
   Star, 
@@ -16,7 +17,9 @@ import {
   Play,
   Lock,
   CheckCircle,
-  Gamepad2
+  Gamepad2,
+  LogOut,
+  User
 } from "lucide-react";
 import { getContentByGrade, type GradeData, type Subject } from "@/lib/gradeContent";
 
@@ -38,10 +41,10 @@ export default function GradeDashboard({ grade }: GradeDashboardProps) {
       setGradeData(content);
     }
 
-    // Load user data
-    const storedUser = localStorage.getItem('stemquest_user');
-    if (storedUser) {
-      setUserData(JSON.parse(storedUser));
+    // Load authenticated user data
+    const user = getCurrentUser();
+    if (user) {
+      setUserData(user);
     }
 
     // Load user progress for this grade
@@ -74,6 +77,14 @@ export default function GradeDashboard({ grade }: GradeDashboardProps) {
 
   const handleGamesClick = () => {
     setLocation(`/games/${grade}`);
+  };
+
+  const handleSignOut = () => {
+    toast({
+      title: "Signed Out",
+      description: "You have been successfully signed out.",
+    });
+    signOut();
   };
 
   const calculateProgress = (subject: Subject) => {
@@ -110,25 +121,29 @@ export default function GradeDashboard({ grade }: GradeDashboardProps) {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation('/grade-selection')}
-              className="p-2"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
                 {gradeData.name} Dashboard
               </h1>
-              <p className="text-gray-600">
-                Welcome back, {userData?.fullName || userData?.username}!
+              <p className="text-gray-600 flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span>Welcome back, {userData?.phoneNumber ? `+91 ${userData.phoneNumber}` : 'Student'}!</span>
               </p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            Grade {grade}
-          </Badge>
+          <div className="flex items-center space-x-3">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              Grade {grade}
+            </Badge>
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </Button>
+          </div>
         </div>
 
         {/* Progress Overview */}

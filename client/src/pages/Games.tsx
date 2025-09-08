@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { getCurrentUser, signOut } from "@/lib/auth";
 import { 
   ArrowLeft,
   Play,
@@ -13,7 +14,9 @@ import {
   Gamepad2,
   Target,
   Users,
-  Zap
+  Zap,
+  LogOut,
+  User
 } from "lucide-react";
 import { getGamesByGrade, type GradeGames, type Game } from "@/lib/gamesContent";
 
@@ -48,10 +51,10 @@ export default function Games({ grade }: GamesProps) {
       setGradeGames(games);
     }
 
-    // Load user data
-    const storedUser = localStorage.getItem('stemquest_user');
-    if (storedUser) {
-      setUserData(JSON.parse(storedUser));
+    // Load authenticated user data
+    const user = getCurrentUser();
+    if (user) {
+      setUserData(user);
     }
   }, [grade]);
 
@@ -67,6 +70,14 @@ export default function Games({ grade }: GamesProps) {
 
   const handleBackToDashboard = () => {
     setLocation(`/dashboard/${grade}`);
+  };
+
+  const handleSignOut = () => {
+    toast({
+      title: "Signed Out",
+      description: "You have been successfully signed out.",
+    });
+    signOut();
   };
 
   if (!gradeGames) {
@@ -98,14 +109,25 @@ export default function Games({ grade }: GamesProps) {
                 <Gamepad2 className="h-8 w-8 text-blue-600" />
                 <span>{gradeGames.name}</span>
               </h1>
-              <p className="text-gray-600 mt-1">
-                {gradeGames.style}
+              <p className="text-gray-600 mt-1 flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span>{gradeGames.style}</span>
               </p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            Grade {grade}
-          </Badge>
+          <div className="flex items-center space-x-3">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              Grade {grade}
+            </Badge>
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </Button>
+          </div>
         </div>
 
         {/* Games Grid */}

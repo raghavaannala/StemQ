@@ -13,17 +13,29 @@ import MathPuzzleGame from "@/components/games/MathPuzzleGame";
 import GrammarQuestGame from "@/components/games/GrammarQuestGame";
 import ScienceLabGame from "@/components/games/ScienceLabGame";
 import HistoryQuizMazeGame from "@/components/games/HistoryQuizMazeGame";
+import EquationBattleGame from "@/components/games/EquationBattleGame";
+import PhysicsSimulationGame from "@/components/games/PhysicsSimulationGame";
+import ChemistryMixMatchGame from "@/components/games/ChemistryMixMatchGame";
+import BiologyExplorerGame from "@/components/games/BiologyExplorerGame";
+import StoryBuilderGame from "@/components/games/StoryBuilderGame";
+import MathStrategyGame from "@/components/games/MathStrategyGame";
+import VirtualResearchLabGame from "@/components/games/VirtualResearchLabGame";
 import CaseStudyChallengesGame from "@/components/games/CaseStudyChallengesGame";
 import LiteratureDebateSimulatorGame from "@/components/games/LiteratureDebateSimulatorGame";
 import CareerSimulationGame from "@/components/games/CareerSimulationGame";
 
-export default function GamePlayer() {
+interface GamePlayerProps {
+  grade?: string;
+  gameId?: string;
+}
+
+export default function GamePlayer({ grade: propGrade, gameId: propGameId }: GamePlayerProps = {}) {
   const params = useParams();
   const [location, navigate] = useLocation();
   const { toast } = useToast();
   
-  const grade = params.grade as string;
-  const gameId = params.gameId as string;
+  const grade = propGrade || params.grade as string;
+  const gameId = propGameId || params.gameId as string;
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState(0);
@@ -145,97 +157,55 @@ export default function GamePlayer() {
       onProgressUpdate: handleProgressUpdate,
     };
 
-    // Middle School Games (6-8)
-    if (grade === "6-8") {
-      switch (gameId) {
-        case "1":
-          return <GrammarQuestGame {...gameProps} />;
-        case "2":
-          return <ScienceLabGame {...gameProps} />;
-        case "3":
-          return <HistoryQuizMazeGame {...gameProps} />;
-        case "4":
-          return <MathPuzzleGame {...gameProps} />;
-        default:
-          return (
-            <div className="text-center p-8">
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-xl font-bold text-gray-700 mb-4">Game Coming Soon!</h3>
-              <p className="text-gray-600 mb-6">This game is still under development. Check back soon!</p>
-              <Button onClick={() => navigate(`/games/${grade}`)}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Games
-              </Button>
-            </div>
-          );
-      }
+    // Use the actual game IDs from gamesContent.ts
+    switch (gameId) {
+      // Middle School Games (6-8)
+      case "math-puzzle-adventure":
+        return <MathPuzzleGame {...gameProps} />;
+      case "science-lab-simulation":
+        return <ScienceLabGame {...gameProps} />;
+      case "grammar-quest":
+        return <GrammarQuestGame {...gameProps} />;
+      case "history-quiz-maze":
+        return <HistoryQuizMazeGame {...gameProps} />;
+      
+      // High School Games (9-10)
+      case "equation-battle":
+        return <EquationBattleGame {...gameProps} />;
+      case "physics-simulation":
+        return <PhysicsSimulationGame {...gameProps} />;
+      case "chemistry-mix-match":
+        return <ChemistryMixMatchGame {...gameProps} />;
+      case "biology-explorer":
+        return <BiologyExplorerGame {...gameProps} />;
+      case "story-builder":
+        return <StoryBuilderGame {...gameProps} />;
+      
+      // Senior High Games (11-12)
+      case "math-strategy-game":
+        return <MathStrategyGame {...gameProps} />;
+      case "virtual-research-lab":
+        return <VirtualResearchLabGame {...gameProps} />;
+      case "case-study-challenges":
+        return <CaseStudyChallengesGame {...gameProps} />;
+      case "literature-debate-simulator":
+        return <LiteratureDebateSimulatorGame {...gameProps} />;
+      case "career-simulation":
+        return <CareerSimulationGame {...gameProps} />;
+      
+      default:
+        return (
+          <div className="text-center p-8">
+            <div className="text-6xl mb-4">🚧</div>
+            <h3 className="text-xl font-bold text-gray-700 mb-4">Game Coming Soon!</h3>
+            <p className="text-gray-600 mb-6">This game is still under development. Check back soon!</p>
+            <Button onClick={() => navigate(`/games/${grade}`)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Games
+            </Button>
+          </div>
+        );
     }
-
-    // High School Games (9-10)
-    if (grade === "9-10") {
-      switch (gameId) {
-        case "1":
-          return <MathPuzzleGame {...gameProps} />;
-        case "2":
-          return <ScienceLabGame {...gameProps} />;
-        case "3":
-          return <HistoryQuizMazeGame {...gameProps} />;
-        case "4":
-          return <GrammarQuestGame {...gameProps} />;
-        default:
-          return (
-            <div className="text-center p-8">
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-xl font-bold text-gray-700 mb-4">Game Coming Soon!</h3>
-              <p className="text-gray-600 mb-6">This game is still under development. Check back soon!</p>
-              <Button onClick={() => navigate(`/games/${grade}`)}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Games
-              </Button>
-            </div>
-          );
-      }
-    }
-
-    // Senior High Games (11-12)
-    if (grade === "11-12") {
-      switch (gameId) {
-        case "1":
-          return <MathPuzzleGame {...gameProps} />;
-        case "2":
-          return <ScienceLabGame {...gameProps} />;
-        case "3":
-          return <CaseStudyChallengesGame {...gameProps} />;
-        case "4":
-          return <LiteratureDebateSimulatorGame {...gameProps} />;
-        case "5":
-          return <CareerSimulationGame {...gameProps} />;
-        default:
-          return (
-            <div className="text-center p-8">
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-xl font-bold text-gray-700 mb-4">Game Coming Soon!</h3>
-              <p className="text-gray-600 mb-6">This game is still under development. Check back soon!</p>
-              <Button onClick={() => navigate(`/games/${grade}`)}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Games
-              </Button>
-            </div>
-          );
-      }
-    }
-
-    return (
-      <div className="text-center p-8">
-        <div className="text-6xl mb-4">🚧</div>
-        <h3 className="text-xl font-bold text-gray-700 mb-4">Game Coming Soon!</h3>
-        <p className="text-gray-600 mb-6">This game is still under development. Check back soon!</p>
-        <Button onClick={() => navigate(`/games/${grade}`)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Games
-        </Button>
-      </div>
-    );
   };
 
   return (
